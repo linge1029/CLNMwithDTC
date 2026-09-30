@@ -12,11 +12,11 @@ import re
 FEATURE_CONFIG = {
    
     'Ce': {'display': 'Extrathyroidal extension(ETE)', 'options': [('Intrathyroidal tumor', 0), ('Capsular invasion', 1), ('Extracapsular extension', 2)]},
-    'HisType': {'display': 'Pathological type', 'options': [('CPTC', 1), ('FVPTC', 2), ('FTC', 3), ('OTC', 4), ('Other', 5)]},
+    'HisType': {'display': 'Histological type', 'options': [('CPTC', 1), ('FVPTC', 2), ('FTC', 3), ('OTC', 4), ('Other', 5)]},
     'Sex': {'display': 'Sex', 'options': [('Female', 0), ('Male', 1)]},  
     'Mult': {'display': 'Multifocality', 'options': [('No', 1), ('Yes', 2), ('Unknown', 3)]}, 
-    'TumS': {'display': 'Tumor size', 'options': [('≦2', 1), ('＞2-4', 2), ('＞4', 3)]},
-    'M': {'display': 'AJCC-M', 'options': [('M0', 0), ('M1', 1), ('Mx', 2)]}
+    'TumS': {'display': 'Tumor size (cm)', 'options': [('≦2', 1), ('＞2-4', 2), ('＞4', 3)]},
+    'M': {'display': 'AJCC M category', 'options': [('M0', 0), ('M1', 1), ('Mx', 2)]}
 }
 
 # ==================== 模型加载 ====================
@@ -128,9 +128,26 @@ def plot_force_only(explainer, input_df, model, prob):
     st.pyplot(fig, use_container_width=True)
     plt.close(fig)
 
+# ==================== 标题样式设置 ====================
+TITLE_FONT_SIZE = 32   # 在这里自由调整标题字号，例如 28、30、32、36
+TITLE_FONT_WEIGHT = 700
+
 # ==================== 主程序 ====================
 def main():
-    st.title("A Prediction Model for CLNM in Elderly Patients with DTC")
+    st.markdown(
+        f"""
+        <div style="
+            font-size: {TITLE_FONT_SIZE}px;
+            font-weight: {TITLE_FONT_WEIGHT};
+            line-height: 1.25;
+            margin-bottom: 20px;
+        ">
+            A Prediction Model for CLNM in Older Patients with DTC
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
     model, explainer = load_model()
     input_df = collect_input()
 
@@ -155,8 +172,13 @@ def main():
     if st.button("Predict", key="predict_btn"):
         with st.spinner("Computing..."):
             prob = model.predict_proba(input_df)[0, 1]
-            st.markdown(f"*Based on feature values, predicted possibility of CLNM is {prob:.1%}*")
+
+            st.markdown(
+                f"*Based on feature values, predicted possibility of CLNM is {prob:.1%}*"
+            )
+
             plot_force_only(explainer, input_df, model, prob)
+
 
 if __name__ == "__main__":
     main()
